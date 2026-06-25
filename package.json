@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm --parallel --filter api dev --filter web dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
   },
+  "private":true,
   "keywords": [],
   "author": "",
   "license": "ISC",
