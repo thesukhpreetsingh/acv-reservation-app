@@ -1,24 +1,41 @@
 #!/bin/bash
+set -euo pipefail
 
-# 1. Start MongoDB
-echo "Starting MongoDB..."
-docker-compose up -d mongodb
+if ! command -v docker >/dev/null 2>&1; then
+  echo "Docker is not installed. Installing Docker..."
 
-# 2. Install dependencies
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    sudo apt-get update
+    sudo apt-get install -y docker.io docker-compose-plugin
+    sudo systemctl enable --now docker
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    brew install --cask docker
+  else
+    echo "Automatic Docker installation is not supported on this OS. Please install Docker manually and rerun this script."
+    exit 1
+  fi
+fi
+
+if docker compose version >/dev/null 2>&1; then
+  COMPOSE_CMD=(docker compose)
+elif command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE_CMD=(docker-compose)
+else
+  echo "Docker Compose is not available. Please install Docker Compose and rerun this script."
+  exit 1
+fi
+
+echo "Starting services with Docker Compose..."
+"${COMPOSE_CMD[@]}" up -d --build
+
 echo "Installing dependencies..."
 pnpm install
 
-# 3. Seed the database
-echo "Seeding database..."
-# We use tsx to run the typescript seed file directly
-pnpm add -D tsx
-npx tsx apps/api/src/seed.ts
+echo "Seeding is handled by the API container startup via Docker Compose."
 
-# 4. Start the backend
 echo "Starting backend..."
 pnpm --filter api dev &
 
-# 5. Start the frontend
 echo "Starting frontend..."
 pnpm --filter web dev
 
