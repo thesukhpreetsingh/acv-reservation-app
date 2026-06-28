@@ -71,9 +71,37 @@ export class AvailabilityEngine {
     const dayName = new Intl.DateTimeFormat("en-US", {
       weekday: "long",
       timeZone: "UTC"
-    }).format(date);
+    }).format(date).toLowerCase();
 
-    return vehicle.availableDays.includes(dayName);
+    const normalizedRequestedDay = this.normalizeDay(dayName);
+
+    return vehicle.availableDays.some((availableDay) => {
+      return this.normalizeDay(availableDay) === normalizedRequestedDay;
+    });
+  }
+
+  private normalizeDay(day: string): string {
+    const normalized = day.trim().toLowerCase();
+
+    const dayMap: Record<string, string> = {
+      mon: "mon",
+      monday: "mon",
+      tue: "tue",
+      tuesday: "tue",
+      wed: "wed",
+      wednesday: "wed",
+      thu: "thur",
+      thur: "thur",
+      thursday: "thur",
+      fri: "fri",
+      friday: "fri",
+      sat: "sat",
+      saturday: "sat",
+      sun: "sun",
+      sunday: "sun",
+    };
+
+    return dayMap[normalized] ?? normalized;
   }
 
   /**

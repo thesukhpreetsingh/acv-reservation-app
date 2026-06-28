@@ -1,5 +1,3 @@
-import { format, addDays, isWithinInterval, startOfDay } from 'date-fns';
-
 const API_BASE_URL = 'http://localhost:3000/api';
 
 export interface Slot {
@@ -10,6 +8,13 @@ export interface Slot {
 
 export interface AvailabilityResponse {
   availableSlots: Slot[];
+  recommendedSlot?: Slot | null;
+  recommendedVehicleId?: string | null;
+}
+
+export interface VehicleOptionsResponse {
+  vehicleTypes: string[];
+  locations: string[];
 }
 
 function toUtcMidnight(date: Date): string {
@@ -24,7 +29,7 @@ export async function fetchAvailableSlots(
   durationMins: number = 45
 ): Promise<AvailabilityResponse> {
   const isoDate = toUtcMidnight(date);
-  
+
   const response = await fetch(`${API_BASE_URL}/availability`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -43,6 +48,16 @@ export async function fetchAvailableSlots(
   return response.json();
 }
 
+export async function fetchVehicleOptions(): Promise<VehicleOptionsResponse> {
+  const response = await fetch(`${API_BASE_URL}/admin/vehicle-options`);
+
+  if (!response.ok) {
+    throw new Error('Failed to load vehicle options');
+  }
+
+  return response.json();
+}
+
 export async function createReservation(payload: {
   vehicleId: string;
   startDateTime: string;
@@ -56,14 +71,19 @@ export async function createReservation(payload: {
   const response = await fetch(`${API_BASE_URL}/reservations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...payload,
-    }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || 'Failed to create reservation');
+    let errorMessage = 'Failed to create reservation';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorData.message || errorMessage;
+    } catch {
+      // Ignore parse failures and keep the default message.
+    }
+
+    throw new Error(errorMessage);
   }
 
   return response.json();
