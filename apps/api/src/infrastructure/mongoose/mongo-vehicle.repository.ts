@@ -21,6 +21,19 @@ export class MongoVehicleRepository implements VehicleRepository {
     return docs.map(doc => this.mapToDomain(doc));
   }
 
+  async create(vehicle: Omit<Vehicle, 'id'>): Promise<Vehicle> {
+    const doc = await this.vehicleModel.create(vehicle);
+    return this.mapToDomain(doc);
+  }
+
+  async findDistinctTypes(): Promise<string[]> {
+    return this.vehicleModel.distinct('type').exec();
+  }
+
+  async findDistinctLocations(): Promise<string[]> {
+    return this.vehicleModel.distinct('location').exec();
+  }
+
   private mapToDomain(doc: any): Vehicle {
     return {
       id: doc._id.toString(),
