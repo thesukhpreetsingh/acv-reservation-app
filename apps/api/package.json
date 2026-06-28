@@ -1,0 +1,29 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "NestJS API for test drive service",
+  "main": "dist/src/main.js",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc",
+    "start": "node --enable-source-maps ../../dist/apps/api/src/main.js",
+    "start:prod": "node --enable-source-maps ../../dist/apps/api/src/main.js",
+    "seed": "tsx src/seed.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.27",
+    "@nestjs/core": "^11.1.27",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/platform-express": "^11.1.27",
+    "date-fns": "^4.4.0",
+    "ioredis": "^5.11.1",
+    "mongoose": "^9.7.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}

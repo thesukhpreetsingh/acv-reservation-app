@@ -1,10 +1,10 @@
 export interface Reservation {
-  id: number;
+  id: string;
 
   vehicleId: string;
 
-  startDateTime: string;
-  endDateTime: string;
+  startDateTime: Date;
+  endDateTime: Date;
 
   customerName: string;
   customerEmail: string;

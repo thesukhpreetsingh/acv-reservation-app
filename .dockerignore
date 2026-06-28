@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log*
+pnpm-debug.log*
+.yarn
+.yarnrc.yml
+.pnpm-debug.log*
+dist
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+.vscode
+.idea
+**/node_modules
