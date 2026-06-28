@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: nevo-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  redis:
+    image: redis:alpine
+    container_name: nevo-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: nevo-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/nevo-test-drive
+      - REDIS_HOST=redis
+    command: ["sh", "-c", "pnpm --filter api seed && pnpm start:api"]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: nevo-web
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
+volumes:
+  mongo-data:
+
